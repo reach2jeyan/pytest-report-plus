@@ -54,7 +54,7 @@ def test_invalid_sendgrid_key_warning(mock_smtp, capsys):
     send_email_from_env(config)
 
     captured = capsys.readouterr()
-    assert "⚠️ SendGrid API key looks invalid" in captured.out
+    assert "SendGrid API key looks invalid" in captured.out
 
 
 def test_load_email_env_file_not_found():

@@ -57,3 +57,23 @@ class TestMarkFlakyTests:
         assert marked[0]["duration"] == 0.2  # last attempt
         assert marked[0]["flaky"] is True
         assert marked[0]["flaky_attempts"] == ["failed", "passed"]
+
+    def test_multiple_failures_not_flaky(self):
+        results = [
+            {"nodeid": "test_sample.py::test_fail", "status": "failed"},
+            {"nodeid": "test_sample.py::test_fail", "status": "failed"},
+        ]
+        marked = mark_flaky_tests(results)
+        assert len(marked) == 1
+        assert marked[0]["flaky"] is False
+        assert "flaky_attempts" not in marked[0]
+
+    def test_multiple_passes_not_flaky(self):
+        results = [
+            {"nodeid": "test_sample.py::test_pass", "status": "passed"},
+            {"nodeid": "test_sample.py::test_pass", "status": "passed"},
+        ]
+        marked = mark_flaky_tests(results)
+        assert len(marked) == 1
+        assert marked[0]["flaky"] is False
+        assert "flaky_attempts" not in marked[0]

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-reporter-plus"
-version = "0.3.0"
+version = "0.3.1"
 description = "Lightweight enhanced HTML reporter for Pytest"
 readme = "README.md"
 authors = ["Emjey", "Karan"]
@@ -20,19 +20,19 @@ urls.Source = "https://github.com/reach2jeyan/pytest-report-plus"
 urls.Tracker = "https://github.com/reach2jeyan/pytest-report-plus/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.9,<4.0"
 yagmail = ">=0.15.293,<0.16.0"
-keyring = ">=24.3.1,<26.0.0"
+keyring = ">=25.6.0,<26.0.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
-playwright = "^1.42.0"
-pytest-playwright = "^0.4.3"
-pytest-xdist = "^3.6.1"
+pytest = "^8.4.1"
+pytest-cov = "^6.2.1"
+playwright = "^1.53.0"
+pytest-playwright = "^0.7.0"
+pytest-xdist = "^3.8.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest-rerunfailures = "^14.0"
+pytest-rerunfailures = "^15.1"
 
 [build-system]
 requires = ["poetry-core"]

@@ -36,14 +36,14 @@ report.html – a clean, styled HTML report
 
 ## Available Options
 
-| Option                  | Description                                         | Default                  | Choices                           |
-|-------------------------|-----------------------------------------------------|--------------------------|-----------------------------------|
-| `--json-report`         | Path to save individual JSON test reports           | `playwright_report.json` | *Any valid file path*             |
-| `--capture-screenshots` | When to capture screenshots                         | `failed`                 | `failed`, `all`, `none`           |
-| `--html-output`         | Directory to output HTML reports                    | `report_output`          | *Any valid directory*             |
-| `--screenshots`         | Directory where screenshots will be stored          | `screenshots`            | *Any valid directory*             |
-| `--send-email`          | Send HTML report via email after the test run       | `False`                  | `True`, `False`                   |
-| `--should-open-report`  | Open your HTML report automatically post completion | `failed`                 | `always`, `failed`, `never`       |
+| Option                  | Description                                         | Default             | Choices                           |
+|-------------------------|-----------------------------------------------------|---------------------|-----------------------------------|
+| `--json-report`         | Path to save individual JSON test reports           | `final_report.json` | *Any valid file path*             |
+| `--capture-screenshots` | When to capture screenshots                         | `failed`            | `failed`, `all`, `none`           |
+| `--html-output`         | Directory to output HTML reports                    | `report_output`     | *Any valid directory*             |
+| `--screenshots`         | Directory where screenshots will be stored          | `screenshots`       | *Any valid directory*             |
+| `--send-email`          | Send HTML report via email after the test run       | `False`             | `True`, `False`                   |
+| `--should-open-report`  | Open your HTML report automatically post completion | `failed`            | `always`, `failed`, `never`       |
 
 ---
 

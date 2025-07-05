@@ -23,7 +23,7 @@ def main():
 
 
 class JSONReporter:
-    def __init__(self, report_path="playwright_report.json", screenshots_dir="screenshots", output_dir="report_output"):
+    def __init__(self, report_path="final_report.json", screenshots_dir="screenshots", output_dir="report_output"):
         self.parsed_data = None
         self.report_path = report_path
         self.screenshots_dir = screenshots_dir
@@ -88,7 +88,7 @@ class JSONReporter:
             with open(self.report_path, "w", encoding="utf-8") as f:
                 json.dump(self.results, f, indent=2)
         except Exception as e:
-            print(f"❌ Failed to write JSON report ")
+            print(f"Failed to write JSON report ")
 
     def copy_all_screenshots(self):
         screenshots_output_dir = os.path.join(self.output_dir, "screenshots")
@@ -538,7 +538,8 @@ class JSONReporter:
             error_html = f"<pre>{self.format_error_with_diffs(error_text)}</pre>" if error_text else ""
             screenshot_path = self.find_screenshot_and_copy(test['test'])
             screenshot_html = f'<div class="details-screenshot"><img src="{screenshot_path}" alt="Screenshot" onclick="toggleFullscreen(this)"></div>' if screenshot_path else ""
-            marker_str = ",".join(test.get("markers", []))
+            markers = test.get("markers")
+            marker_str = ",".join(markers) if isinstance(markers, list) else ""
             stdout_html = ""
             if test.get('stdout'):
                 stdout_html = f"<div><strong>STDOUT:</strong><pre>{test['stdout']}</pre></div>"
@@ -578,7 +579,7 @@ class JSONReporter:
 
             html += f'''
     
-<div class="test test-card" data-name="{test['test']}" data-link="{','.join(test.get('links', []))}" data-markers="{marker_str}">
+<div class="test test-card" data-name="{test['test']}" data-link="{','.join(test.get('links') or [])}" data-markers="{marker_str}">
   <div class="header {status_class}" onclick="toggleDetails(this)">
     <div class="header-section test-info">
       <span class="toggle"></span>

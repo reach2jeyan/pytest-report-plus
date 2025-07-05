@@ -40,7 +40,7 @@ def send_email_from_env(config: dict):
         if "sendgrid" in smtp_server.lower():
             if not password.startswith("SG."):
                 print("****************************************************************")
-                print("⚠️ SendGrid API key looks invalid. It should start with 'SG.'")
+                print("SendGrid API key looks invalid. It should start with 'SG.'")
                 print("****************************************************************")
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             if use_tls:
@@ -53,6 +53,6 @@ def send_email_from_env(config: dict):
             print(f"{subject} is sent to {recipient} from {sender} successfully")
             print("****************************************************************")
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        print(f"Failed to send email: {e}")
 
 

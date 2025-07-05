@@ -33,5 +33,5 @@ def test_find_screenshot_and_copy(tmp_path):
     reporter = FakeReporter(screenshots_dir, output_dir)
     rel_path = reporter.find_screenshot_and_copy("something")
 
-    assert rel_path == f"screenshots/{file_name}"
+    assert rel_path.replace("\\", "/") == f"screenshots/{file_name}"
     assert (output_dir / "screenshots" / file_name).exists()

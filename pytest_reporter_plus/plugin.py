@@ -7,6 +7,7 @@ import pytest
 from pytest_reporter_plus.extract_link import extract_links_from_item
 from pytest_reporter_plus.generate_html_report import JSONReporter
 from pytest_reporter_plus.json_merge import merge_json_reports
+from pytest_reporter_plus.json_to_xml_converter import convert_json_to_junit_xml
 from pytest_reporter_plus.resolver_driver import take_screenshot_generic, resolve_driver
 from pytest_reporter_plus.send_email_report import send_email_from_env, load_email_env
 
@@ -58,7 +59,7 @@ def pytest_runtest_makereport(item, call):
                 try:
                     screenshot_path = take_screenshot_generic(item, driver)
                 except Exception as e:
-                    print(f"❌ Failed to capture screenshot: {e}")
+                    print(f"Failed to capture screenshot: {e}")
 
         reporter = config._json_reporter
         worker_id = os.getenv("PYTEST_XDIST_WORKER") or "main"
@@ -86,9 +87,10 @@ import subprocess
 def pytest_sessionfinish(session, exitstatus):
     reporter = session.config._json_reporter
 
-    json_path = session.config.getoption("--json-report") or "playwright_report.json"
+    json_path = session.config.getoption("--json-report") or "final_report.json"
     html_output = session.config.getoption("--html-output") or "report_output"
     screenshots = session.config.getoption("--screenshots") or "screenshots"
+    xml_path = session.config.getoption("--xml-report") or "final_xml.xml"
 
     is_worker = os.getenv("PYTEST_XDIST_WORKER") is not None
     try:
@@ -122,7 +124,7 @@ def pytest_sessionfinish(session, exitstatus):
             "--output", html_output
         ], check=True)
     except Exception as e:
-        print(f"❌ Exception during HTML report generation: {e}")
+        print(f"Exception during HTML report generation: {e}")
 
     if session.config.getoption("--send-email"):
         print("📬 --send-email enabled. Sending report...")
@@ -130,9 +132,17 @@ def pytest_sessionfinish(session, exitstatus):
             config = load_email_env()
             send_email_from_env(config)
         except Exception as e:
-            print(f"❌ Failed to send email: {e}")
+            print(f"Failed to send email: {e}")
 
     open_html_report(report_path=f"{html_output}/report.html",json_path=json_path, config=session.config)
+
+    if session.config.getoption("--generate-xml"):
+        try:
+            json_path = reporter.report_path
+            convert_json_to_junit_xml(json_path, xml_path)
+            print(f"XML report generated: {xml_path}")
+        except Exception as e:
+            print(f"Failed to generate XML report: {e}")
 
 
 def pytest_sessionstart(session):
@@ -151,7 +161,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--json-report",
         action="store",
-        default="playwright_report.json",
+        default="final_report.json",
         help="Directory to save individual JSON test reports"
     )
     parser.addoption(
@@ -182,6 +192,19 @@ def pytest_addoption(parser):
         choices=["always", "failed", "never"],
         help="When to open the HTML report: always, failed, or never (default: failed)",
     )
+    parser.addoption(
+        "--generate-xml",
+        action="store_true",
+        default=False,
+        help="Generate JUnit-style XML from the final JSON report"
+    )
+    parser.addoption(
+        "--xml-report",
+        action="store",
+        default=None,
+        help="Path to output the XML report (used with --generatexml)"
+    )
+
 
 def take_screenshot_on_failure(item, page):
     screenshot_dir = os.path.join(os.getcwd(), "screenshots")
@@ -222,7 +245,7 @@ def pytest_configure(config):
     _saved_config = config
 
     INTERNAL_JSON_DIR = Path(".pytest_worker_jsons")
-    report_path = config.getoption("--json-report") or "playwright_report.json"
+    report_path = config.getoption("--json-report") or "final_report.json"
     worker_id = os.getenv("PYTEST_XDIST_WORKER")
 
     if worker_id:
@@ -268,11 +291,17 @@ def mark_flaky_tests(results):
     final_results = []
     for nodeid, attempts in tests_by_nodeid.items():
         final_test = attempts[-1].copy()
-        if len(attempts) > 1:
+
+        previous_statuses = [t["status"] for t in attempts[:-1]]
+        final_status = final_test["status"]
+
+        # A test is flaky if it passed at the end but had at least one failure before
+        if final_status == "passed" and "failed" in previous_statuses:
             final_test["flaky"] = True
-            final_test["flaky_attempts"] = [t.get("status") for t in attempts]
+            final_test["flaky_attempts"] = [t["status"] for t in attempts]
         else:
             final_test["flaky"] = False
+
         final_results.append(final_test)
 
     return final_results
@@ -297,5 +326,5 @@ def open_html_report(report_path, json_path, config):
            webbrowser.open(f"file://{os.path.abspath(report_path)}")
 
    except Exception as e:
-       print(f"⚠️ Could not open report: {e}")
+       print(f"Could not open report: {e}")
 

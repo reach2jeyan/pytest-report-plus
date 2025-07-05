@@ -33,7 +33,6 @@ class TestMergeJsonReports:
         with open(output_path) as f:
             merged = json.load(f)
 
-        print(merged)
         assert len(merged) == 1
         assert merged[0]["nodeid"] == "test_sample.py::test_case"
         assert merged[0]["status"] in ["passed", "failed"]

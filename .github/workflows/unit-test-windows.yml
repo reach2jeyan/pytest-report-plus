@@ -1,0 +1,46 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        python-version: [ "3.13" ]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+
+      - name: Add Poetry to PATH
+        run: |
+          echo "$env:APPDATA\Python\Scripts" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+          echo "Poetry PATH set to $env:APPDATA\Python\Scripts"
+
+      - name: Check Poetry Version
+        run: poetry --version
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
+
+      - name: 📦 Install dependencies with Poetry
+        run: |
+          poetry lock
+          poetry install --with dev
+
+      - name: 🧪 Run tests with coverage
+        run: |
+          poetry run pytest --cov=pytest_reporter_plus tests/ --cov-fail-under=81 --cov-report=term --reruns 1
